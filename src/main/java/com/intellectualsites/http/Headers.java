@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * Container for HTTP headers
  */
-public final class Headers {
+final class Headers {
 
     private final Map<String, List<String>> headers = new HashMap<>();
 
@@ -48,7 +48,7 @@ public final class Headers {
      *
      * @return Headers instance
      */
-    public static Headers newInstance() {
+    static Headers newInstance() {
         return new Headers();
     }
 
@@ -58,7 +58,7 @@ public final class Headers {
      * @param key   Header name
      * @param value Header value
      */
-    public void addHeader(@NotNull String key, @NotNull final String value) {
+    void addHeader(@NotNull String key, @NotNull final String value) {
         Objects.requireNonNull(key, "Key may not be null");
         Objects.requireNonNull(value, "Value may not be null");
         key = key.toLowerCase();
@@ -77,7 +77,7 @@ public final class Headers {
      * @param key Header key
      * @return Unmodifiable list
      */
-    @NotNull public List<String> getHeaders(@NotNull final String key) {
+    @NotNull List<String> getHeaders(@NotNull final String key) {
         Objects.requireNonNull(key, "Key may not be null");
         final List<String> headers = this.headers.get(key.toLowerCase());
         if (headers == null) {
@@ -94,7 +94,7 @@ public final class Headers {
      * @param key Header key
      * @return Header value, or {@code ""}
      */
-    @NotNull public String getHeader(@NotNull final String key) {
+    @NotNull String getHeader(@NotNull final String key) {
         final List<String> headers = this.getHeaders(key);
         if (headers.isEmpty()) {
             return "";
@@ -107,7 +107,7 @@ public final class Headers {
      *
      * @return Unmodifiable collection
      */
-    @NotNull public Collection<String> getHeaders() {
+    @NotNull Collection<String> getHeaders() {
         return Collections.unmodifiableSet(this.headers.keySet());
     }
 

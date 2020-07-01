@@ -23,17 +23,10 @@
 //
 package com.intellectualsites.http;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-
 /**
  * HTTP methods
  */
-public enum HttpMethod {
+enum HttpMethod {
 
     /**
      * Post requests are used to handle data
@@ -65,8 +58,6 @@ public enum HttpMethod {
      */
     DELETE;
 
-    private static Map<String, HttpMethod> METHOD_CACHE;
-
     private final boolean hasBody;
 
     HttpMethod() {
@@ -77,23 +68,12 @@ public enum HttpMethod {
         this.hasBody = hasBody;
     }
 
-    @NotNull public static Optional<HttpMethod> getByName(@NotNull final String name) {
-        if (METHOD_CACHE == null) {
-            METHOD_CACHE = new HashMap<>();
-            for (final HttpMethod method : values()) {
-                METHOD_CACHE.put(method.name(), method);
-            }
-        }
-        final String fixed = name.replaceAll("\\s", "").toUpperCase(Locale.ENGLISH);
-        return Optional.ofNullable(METHOD_CACHE.get(fixed));
-    }
-
     /**
      * Whether or not the method should return an entity
      *
      * @return Whether or not a response entity should be expected
      */
-    public boolean hasBody() {
+    boolean hasBody() {
         return this.hasBody;
     }
 

@@ -21,10 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-package com.intellectualsites.http.request;
+package com.intellectualsites.http;
 
-import com.intellectualsites.http.Headers;
-import com.intellectualsites.http.HttpMethod;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -38,7 +36,7 @@ import java.util.Objects;
  * HTTP request class. This should not be interacted with directly,
  * rather {@link com.intellectualsites.http.HttpClient} should be used
  */
-public final class HttpRequest {
+final class HttpRequest {
 
     private final HttpMethod method;
     private final URL url;
@@ -55,11 +53,11 @@ public final class HttpRequest {
      *
      * @return Builder instance
      */
-    public static Builder newBuilder() {
+    static Builder newBuilder() {
         return new Builder();
     }
 
-    public void executeRequest() throws IOException {
+    void executeRequest() throws IOException {
         final HttpURLConnection httpURLConnection = (HttpURLConnection) this.url.openConnection();
         httpURLConnection.setRequestMethod(this.method.name());
         httpURLConnection.setDoOutput(this.method.hasBody());
@@ -84,7 +82,7 @@ public final class HttpRequest {
     }
 
 
-    public static final class Builder {
+    static final class Builder {
 
         private final Headers headers = Headers.newInstance();
         private HttpMethod method;
@@ -99,7 +97,7 @@ public final class HttpRequest {
          * @param method HTTP method
          * @return Builder instance
          */
-        @NotNull public Builder withMethod(@NotNull final HttpMethod method) {
+        @NotNull Builder withMethod(@NotNull final HttpMethod method) {
             this.method = Objects.requireNonNull(method, "Method may not be null");
             return this;
         }
@@ -110,7 +108,7 @@ public final class HttpRequest {
          * @param url URL
          * @return Builder instance
          */
-        @NotNull public Builder withURL(@NotNull final URL url) {
+        @NotNull Builder withURL(@NotNull final URL url) {
             this.url = Objects.requireNonNull(url, "URL may not be null");
             return this;
         }
@@ -122,12 +120,12 @@ public final class HttpRequest {
          * @param value Header value
          * @return Builder instance
          */
-        @NotNull public Builder withHeader(@NotNull final String key, @NotNull final String value) {
+        @NotNull Builder withHeader(@NotNull final String key, @NotNull final String value) {
             this.headers.addHeader(Objects.requireNonNull(key, "Key may not be null"), Objects.requireNonNull(value, "Value may not be null"));
             return this;
         }
 
-        @NotNull public HttpRequest build() {
+        @NotNull HttpRequest build() {
             Objects.requireNonNull(this.method, "No method was supplied");
             Objects.requireNonNull(this.url, "No URL was supplied");
             return new HttpRequest(this.method, this.url, this.headers);
