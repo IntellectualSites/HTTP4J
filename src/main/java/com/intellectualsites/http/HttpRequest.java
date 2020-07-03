@@ -24,13 +24,16 @@
 package com.intellectualsites.http;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * HTTP request class. This should not be interacted with directly,
@@ -38,14 +41,21 @@ import java.util.Objects;
  */
 final class HttpRequest {
 
-    private final HttpMethod method;
-    private final URL url;
-    private final Headers headers;
+    private static final int READ_TIMEOUT = 3600000;
 
-    private HttpRequest(@NotNull final HttpMethod method, @NotNull final URL url, @NotNull final Headers headers) {
+    @NotNull private final HttpMethod method;
+    @NotNull private final URL url;
+    @NotNull private final Headers headers;
+    @NotNull private final EntityMapper mapper;
+    @Nullable private final Supplier<Object> inputSupplier;
+
+    private HttpRequest(@NotNull final HttpMethod method, @NotNull final URL url, @NotNull final Headers headers,
+        @Nullable Supplier<Object> inputSupplier, @NotNull final EntityMapper mapper) {
         this.method = method;
         this.url = url;
         this.headers = headers;
+        this.inputSupplier = inputSupplier;
+        this.mapper = mapper;
     }
 
     /**
@@ -59,36 +69,75 @@ final class HttpRequest {
 
     void executeRequest() throws IOException {
         final HttpURLConnection httpURLConnection = (HttpURLConnection) this.url.openConnection();
-        httpURLConnection.setRequestMethod(this.method.name());
-        httpURLConnection.setDoOutput(this.method.hasBody());
-        httpURLConnection.setUseCaches(false);
-        for (final String headerName : this.headers.getHeaders()) {
-            final List<String> headers = this.headers.getHeaders(headerName);
-            if (headers.size() == 1) {
-                httpURLConnection.addRequestProperty(headerName, headers.get(0));
-            } else if (headers.size() > 1) {
-                final StringBuilder headerBuilder = new StringBuilder();
-                final Iterator<String> headerIterator = headers.iterator();
-                while (headerIterator.hasNext()) {
-                    headerBuilder.append(headerIterator.next());
-                    if (headerIterator.hasNext()) {
-                        headerBuilder.append(',');
+        try {
+            httpURLConnection.setRequestMethod(this.method.name());
+            httpURLConnection.setDoOutput(this.method.hasBody());
+            httpURLConnection.setUseCaches(false);
+            httpURLConnection.setReadTimeout(READ_TIMEOUT);
+            for (final String headerName : this.headers.getHeaders()) {
+                final List<String> headers = this.headers.getHeaders(headerName);
+                if (headers.size() == 1) {
+                    httpURLConnection.addRequestProperty(headerName, headers.get(0));
+                } else if (headers.size() > 1) {
+                    final StringBuilder headerBuilder = new StringBuilder();
+                    final Iterator<String> headerIterator = headers.iterator();
+                    while (headerIterator.hasNext()) {
+                        headerBuilder.append(headerIterator.next());
+                        if (headerIterator.hasNext()) {
+                            headerBuilder.append(',');
+                        }
+                    }
+                    httpURLConnection.addRequestProperty(headerName, headerBuilder.toString());
+                }
+            }
+            httpURLConnection.connect();
+            if (this.inputSupplier != null) {
+                httpURLConnection.setDoInput(true);
+                final Object object = this.inputSupplier.get();
+                if (object != null) {
+                    final EntityMapper.EntitySerializer serializer =
+                        this.mapper.getSerializer(object.getClass()).orElseThrow(() -> new IllegalArgumentException(String
+                            .format("There is no registered serializer for type '%s'",
+                                object.getClass().getCanonicalName())));
+                    httpURLConnection.setRequestProperty("Content-Type", serializer.getContentType().toString());
+                    final byte[] bytes = serializer.serialize(object);
+                    httpURLConnection.setRequestProperty("Content-Length", Integer.toString(bytes.length));
+                    try (final DataOutputStream dataOutputStream = new DataOutputStream(
+                        httpURLConnection.getOutputStream())) {
+                        dataOutputStream.write(bytes);
+                        dataOutputStream.flush();
                     }
                 }
-                httpURLConnection.addRequestProperty(headerName, headerBuilder.toString());
             }
+        } catch (final Throwable throwable) {
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
+            }
+            throw throwable;
         }
-
     }
 
 
     static final class Builder {
 
         private final Headers headers = Headers.newInstance();
+        private EntityMapper mapper;
         private HttpMethod method;
         private URL url;
+        private Supplier<Object> inputSupplier;
 
         private Builder() {
+        }
+
+        /**
+         * Specify the entity mapper used by the request
+         *
+         * @param mapper Entity mapper
+         * @return Builder instance
+         */
+        @NotNull Builder withMapper(@NotNull final EntityMapper mapper) {
+            this.mapper = Objects.requireNonNull(mapper, "Mapper may not be null");
+            return this;
         }
 
         /**
@@ -125,10 +174,22 @@ final class HttpRequest {
             return this;
         }
 
+        /**
+         * Add an input entity to the request
+         *
+         * @param inputSupplier Input supplier
+         * @return Builder instance
+         */
+        @NotNull Builder withInput(@NotNull final Supplier<Object> inputSupplier) {
+            this.inputSupplier = inputSupplier;
+            return this;
+        }
+
         @NotNull HttpRequest build() {
             Objects.requireNonNull(this.method, "No method was supplied");
             Objects.requireNonNull(this.url, "No URL was supplied");
-            return new HttpRequest(this.method, this.url, this.headers);
+            Objects.requireNonNull(this.mapper, "No mapper was supplied");
+            return new HttpRequest(this.method, this.url, this.headers, this.inputSupplier, this.mapper);
         }
 
     }

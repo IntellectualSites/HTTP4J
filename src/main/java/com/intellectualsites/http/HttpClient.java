@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -39,6 +40,7 @@ public final class HttpClient {
 
     private static final Logger logger = Logger.getLogger(HttpClient.class.getCanonicalName());
 
+    private final EntityMapper mapper = new EntityMapper();
     private final ClientSettings settings;
 
     private HttpClient(@NotNull final ClientSettings settings) {
@@ -120,6 +122,15 @@ public final class HttpClient {
         return new WrappedRequestBuilder(HttpMethod.PATCH, url);
     }
 
+    /**
+     * Get the entity mapper used by the client
+     *
+     * @return Entity mapper
+     */
+    @NotNull public EntityMapper getMapper() {
+        return this.mapper;
+    }
+
 
     public static final class Builder {
 
@@ -178,6 +189,19 @@ public final class HttpClient {
                 logger.severe("Malformed URL: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+
+        /**
+         * Specify an input supplier which will be used to write to the connection, if it
+         * established correctly. This requires that there is a {@link com.intellectualsites.http.EntityMapper.EntitySerializer}
+         * registered for the type of the object, in the {@link EntityMapper} used by the client
+         *
+         * @param input Input
+         * @return Builder instance
+         */
+        @NotNull public WrappedRequestBuilder withInput(@NotNull final Supplier<Object> input) {
+            builder.withInput(input);
+            return this;
         }
 
     }
