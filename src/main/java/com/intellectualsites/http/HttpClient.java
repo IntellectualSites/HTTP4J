@@ -25,11 +25,12 @@ package com.intellectualsites.http;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -173,6 +174,10 @@ public final class HttpClient {
     public final class WrappedRequestBuilder {
 
         private final HttpRequest.Builder builder = HttpRequest.newBuilder();
+        private final Map<Integer, Consumer<HttpResponse>> consumers = new HashMap<>();
+        private Consumer<HttpResponse> other = response -> {
+        };
+        private Consumer<Throwable> exceptionHandler = Throwable::printStackTrace;
 
         private WrappedRequestBuilder(@NotNull final HttpMethod method, @NotNull String url) {
             if (url.startsWith("/")) {
@@ -184,11 +189,13 @@ public final class HttpClient {
             }
             url = HttpClient.this.settings.getBaseURL() + '/' + url;
             try {
-                final URL javaURL = new URL(URLEncoder.encode(url, "UTF-8"));
-            } catch (MalformedURLException | UnsupportedEncodingException e) {
+                final URL javaURL = new URL(url);
+                builder.withURL(javaURL);
+            } catch (MalformedURLException e) {
                 logger.severe("Malformed URL: " + e.getMessage());
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
+            builder.withMethod(method);
         }
 
         /**
@@ -202,6 +209,82 @@ public final class HttpClient {
         @NotNull public WrappedRequestBuilder withInput(@NotNull final Supplier<Object> input) {
             builder.withInput(input);
             return this;
+        }
+
+        /**
+         * Specify the entity mapper used by the request
+         *
+         * @param mapper Entity mapper
+         * @return Builder instance
+         */
+        @NotNull public WrappedRequestBuilder withMapper(@NotNull final EntityMapper mapper) {
+            builder.withMapper(mapper);
+            return this;
+        }
+
+        /**
+         * Add a header to the request
+         *
+         * @param key   Header key
+         * @param value Header value
+         * @return Builder instance
+         */
+        @NotNull public WrappedRequestBuilder withHeader(@NotNull final String key,
+            @NotNull final String value) {
+            builder.withHeader(key, value);
+            return this;
+        }
+
+        /**
+         * Add a consumer that acts on a specific status code
+         *
+         * @param code             Status code
+         * @param responseConsumer Response consumer
+         * @return Builder instance
+         */
+        @NotNull public WrappedRequestBuilder onStatus(final int code,
+            @NotNull final Consumer<HttpResponse> responseConsumer) {
+            consumers.put(code, responseConsumer);
+            return this;
+        }
+
+        /**
+         * Add a consumer that acts on all remaining status code
+         *
+         * @param responseConsumer Response consumer
+         * @return Builder instance
+         */
+        @NotNull public WrappedRequestBuilder onRemaining(
+            @NotNull final Consumer<HttpResponse> responseConsumer) {
+            this.other = responseConsumer;
+            return this;
+        }
+
+        /**
+         * Add an exception consumer
+         *
+         * @param consumer Exception consumer
+         * @return Builder instance
+         */
+        @NotNull public WrappedRequestBuilder onException(
+            @NotNull final Consumer<Throwable> consumer) {
+            this.exceptionHandler = consumer;
+            builder.onException(consumer);
+            return this;
+        }
+
+        /**
+         * Perform the request
+         */
+        public void execute() {
+            try {
+                final HttpResponse response = this.builder.build().executeRequest();
+                final Consumer<HttpResponse> responseConsumer =
+                    this.consumers.getOrDefault(response.getStatusCode(), this.other);
+                responseConsumer.accept(response);
+            } catch (final Exception e) {
+                exceptionHandler.accept(e);
+            }
         }
 
     }

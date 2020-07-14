@@ -25,6 +25,7 @@ package com.intellectualsites.http;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,10 +37,21 @@ import java.util.Optional;
 public final class EntityMapper {
 
     private final Map<Class<?>, EntitySerializer<?>> serializers = new HashMap<>();
-    private final Map<ContentType, EntityDeserializer<?>> deserializers = new HashMap<>();
+    private final Map<Class<?>, EntityDeserializer<?>> deserializers = new HashMap<>();
 
     @SuppressWarnings("ALL") private static <T> T castUnsafe(@NotNull final Object o) {
         return (T) o;
+    }
+
+    /**
+     * Create a new entity mapper instance
+     *
+     * @return Created instance
+     */
+    @NotNull public static EntityMapper newInstance() {
+        final EntityMapper mapper = new EntityMapper();
+        mapper.registerDeserializer(String.class, new StringDeserializer());
+        return mapper;
     }
 
     /**
@@ -48,26 +60,30 @@ public final class EntityMapper {
      * @param clazz      Class of type to map
      * @param serializer Serializer that performs the mapping
      * @param <T>        Type to map
+     * @return Mapper instance
      */
-    public <T> void registerSerializer(@NotNull final Class<T> clazz,
+    @NotNull public <T> EntityMapper registerSerializer(@NotNull final Class<T> clazz,
         @NotNull final EntitySerializer<T> serializer) {
         Objects.requireNonNull(clazz, "Class may not be null");
         Objects.requireNonNull(serializer, "Serializer may not be null");
         this.serializers.put(clazz, serializer);
+        return this;
     }
 
     /**
      * Register a deserializer that maps objects of a certain content type to Java objects
      *
-     * @param type         Content type
+     * @param clazz        Content type
      * @param deserializer Deserializer
      * @param <T>          Type of the objects produces by the deserializer
+     * @return Mapper instance
      */
-    public <T> void registerDeserializer(@NotNull final ContentType type,
+    @NotNull public <T> EntityMapper registerDeserializer(@NotNull final Class<T> clazz,
         @NotNull final EntityDeserializer<T> deserializer) {
-        Objects.requireNonNull(type, "Type may not be null");
+        Objects.requireNonNull(clazz, "Type may not be null");
         Objects.requireNonNull(deserializer, "Deserializer may not be null");
-        this.deserializers.put(type, deserializer);
+        this.deserializers.put(clazz, deserializer);
+        return this;
     }
 
     /**
@@ -91,8 +107,12 @@ public final class EntityMapper {
      * @param type Content type
      * @return Deserializer
      */
-    public Optional<EntityDeserializer<?>> getDeserialiser(@NotNull final ContentType type) {
-        return Optional.ofNullable(this.deserializers.get(type));
+    public <T> Optional<EntityDeserializer<T>> getDeserialiser(@NotNull final Class<T> type) {
+        final EntityDeserializer<?> entityDeserializer = this.deserializers.get(type);
+        if (entityDeserializer == null) {
+            return Optional.empty();
+        }
+        return Optional.of((EntityDeserializer<T>) entityDeserializer);
     }
 
 
@@ -137,6 +157,15 @@ public final class EntityMapper {
          * @return De-serialized input
          */
         @NotNull T deserialize(@NotNull final byte[] input);
+
+    }
+
+
+    private static final class StringDeserializer implements EntityDeserializer<String> {
+
+        @NotNull @Override public String deserialize(@NotNull final byte[] input) {
+            return new String(input, StandardCharsets.US_ASCII);
+        }
 
     }
 

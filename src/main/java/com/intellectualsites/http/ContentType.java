@@ -36,6 +36,7 @@ public final class ContentType {
 
     public static final ContentType JSON = of("application/json");
     public static final ContentType XML = of("application/xml");
+    public static final ContentType DUMMY = of("application/*");
 
     private final String type;
 

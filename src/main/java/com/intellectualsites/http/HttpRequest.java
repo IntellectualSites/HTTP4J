@@ -26,13 +26,17 @@ package com.intellectualsites.http;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -48,14 +52,17 @@ final class HttpRequest {
     @NotNull private final Headers headers;
     @NotNull private final EntityMapper mapper;
     @Nullable private final Supplier<Object> inputSupplier;
+    @NotNull private final Consumer<Throwable> throwableConsumer;
 
     private HttpRequest(@NotNull final HttpMethod method, @NotNull final URL url, @NotNull final Headers headers,
-        @Nullable Supplier<Object> inputSupplier, @NotNull final EntityMapper mapper) {
+        @Nullable Supplier<Object> inputSupplier, @NotNull final EntityMapper mapper,
+        @NotNull final Consumer<Throwable> throwableConsumer) {
         this.method = method;
         this.url = url;
         this.headers = headers;
         this.inputSupplier = inputSupplier;
         this.mapper = mapper;
+        this.throwableConsumer = throwableConsumer;
     }
 
     /**
@@ -67,7 +74,7 @@ final class HttpRequest {
         return new Builder();
     }
 
-    void executeRequest() throws IOException {
+    @Nullable HttpResponse executeRequest() throws IOException {
         final HttpURLConnection httpURLConnection = (HttpURLConnection) this.url.openConnection();
         try {
             httpURLConnection.setRequestMethod(this.method.name());
@@ -90,9 +97,8 @@ final class HttpRequest {
                     httpURLConnection.addRequestProperty(headerName, headerBuilder.toString());
                 }
             }
-            httpURLConnection.connect();
+            httpURLConnection.setDoInput(this.inputSupplier != null);
             if (this.inputSupplier != null) {
-                httpURLConnection.setDoInput(true);
                 final Object object = this.inputSupplier.get();
                 if (object != null) {
                     final EntityMapper.EntitySerializer serializer =
@@ -109,12 +115,43 @@ final class HttpRequest {
                     }
                 }
             }
+            httpURLConnection.connect();
+            final HttpResponse.Builder builder = HttpResponse.builder()
+                .withStatus(httpURLConnection.getResponseCode()).withEntityMapper(this.mapper);
+            for (final Map.Entry<String, List<String>> entry : httpURLConnection.getHeaderFields().entrySet()) {
+                if (entry.getKey() == null) {
+                    continue;
+                }
+                for (final String header : entry.getValue()) {
+                    builder.withHeader(entry.getKey(), header);
+                }
+            }
+
+            final InputStream stream;
+            if (httpURLConnection.getErrorStream() != null) {
+                stream = httpURLConnection.getErrorStream();
+            } else {
+                stream = httpURLConnection.getInputStream();
+            }
+
+            try (final InputStream copy = stream;
+                final ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                int b;
+                while ((b = stream.read()) != -1) {
+                    bos.write(b);
+                }
+                builder.withBody(bos.toByteArray());
+            }
+
+            return builder.build();
         } catch (final Throwable throwable) {
+            throwableConsumer.accept(throwable);
+        } finally {
             if (httpURLConnection != null) {
                 httpURLConnection.disconnect();
             }
-            throw throwable;
         }
+        return null;
     }
 
 
@@ -125,6 +162,7 @@ final class HttpRequest {
         private HttpMethod method;
         private URL url;
         private Supplier<Object> inputSupplier;
+        private Consumer<Throwable> throwableConsumer = Throwable::printStackTrace;
 
         private Builder() {
         }
@@ -181,7 +219,18 @@ final class HttpRequest {
          * @return Builder instance
          */
         @NotNull Builder withInput(@NotNull final Supplier<Object> inputSupplier) {
-            this.inputSupplier = inputSupplier;
+            this.inputSupplier = Objects.requireNonNull(inputSupplier, "Input supplier may not be null");
+            return this;
+        }
+
+        /**
+         * Add a throwable consumer
+         *
+         * @param consumer Throwable consumer
+         * @return Builder instance
+         */
+        @NotNull Builder onException(@NotNull final Consumer<Throwable> consumer) {
+            this.throwableConsumer = Objects.requireNonNull(consumer, "Consumer may not be null");
             return this;
         }
 
@@ -189,7 +238,10 @@ final class HttpRequest {
             Objects.requireNonNull(this.method, "No method was supplied");
             Objects.requireNonNull(this.url, "No URL was supplied");
             Objects.requireNonNull(this.mapper, "No mapper was supplied");
-            return new HttpRequest(this.method, this.url, this.headers, this.inputSupplier, this.mapper);
+            Objects.requireNonNull(this.inputSupplier, "No input supplier was supplied");
+            Objects.requireNonNull(this.throwableConsumer, "No throwable consumer was supplied");
+            return new HttpRequest(this.method, this.url, this.headers,
+                this.inputSupplier, this.mapper, this.throwableConsumer);
         }
 
     }
