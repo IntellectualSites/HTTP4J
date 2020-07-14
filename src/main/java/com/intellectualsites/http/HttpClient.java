@@ -177,7 +177,7 @@ public final class HttpClient {
         private final Map<Integer, Consumer<HttpResponse>> consumers = new HashMap<>();
         private Consumer<HttpResponse> other = response -> {
         };
-        private Consumer<Throwable> exceptionHandler = Throwable::printStackTrace;
+        private Consumer<Throwable> exceptionHandler = null;
 
         private WrappedRequestBuilder(@NotNull final HttpMethod method, @NotNull String url) {
             if (url.startsWith("/")) {
@@ -278,12 +278,21 @@ public final class HttpClient {
          */
         public void execute() {
             try {
+                final Throwable[] throwables = new Throwable[1];
+                if (this.exceptionHandler == null) {
+                    builder.onException(e -> throwables[0] = e);
+                }
                 final HttpResponse response = this.builder.build().executeRequest();
                 final Consumer<HttpResponse> responseConsumer =
                     this.consumers.getOrDefault(response.getStatusCode(), this.other);
+                if (throwables[0] != null) {
+                    throw new RuntimeException(throwables[0]);
+                }
                 responseConsumer.accept(response);
             } catch (final Exception e) {
-                exceptionHandler.accept(e);
+                if (this.exceptionHandler == null) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
