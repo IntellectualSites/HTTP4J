@@ -283,12 +283,13 @@ public final class HttpClient {
                     builder.onException(e -> throwables[0] = e);
                 }
                 final HttpResponse response = this.builder.build().executeRequest();
-                final Consumer<HttpResponse> responseConsumer =
-                    this.consumers.getOrDefault(response.getStatusCode(), this.other);
+                if (response != null) {
+                    final Consumer<HttpResponse> responseConsumer = this.consumers.getOrDefault(response.getStatusCode(), this.other);
+                    responseConsumer.accept(response);
+                }
                 if (throwables[0] != null) {
                     throw new RuntimeException(throwables[0]);
                 }
-                responseConsumer.accept(response);
             } catch (final Exception e) {
                 if (this.exceptionHandler == null) {
                     throw new RuntimeException(e);
