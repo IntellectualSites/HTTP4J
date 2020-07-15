@@ -24,6 +24,7 @@
 package com.intellectualsites.http;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -95,9 +96,22 @@ final class Headers {
      * @return Header value, or {@code ""}
      */
     @NotNull String getHeader(@NotNull final String key) {
+        return Objects.requireNonNull(getOrDefault(key, ""));
+    }
+
+    /**
+     * Get the value of a specific header, or default string.
+     * If multiple values are specified for the header key,
+     * only the last value will be returned.
+     *
+     * @param key           Header key
+     * @param defaultString Default value
+     * @return Header value, or the default value
+     */
+    @Nullable String getOrDefault(@NotNull final String key, @Nullable final String defaultString) {
         final List<String> headers = this.getHeaders(key);
         if (headers.isEmpty()) {
-            return "";
+            return defaultString;
         }
         return headers.get(headers.size() - 1);
     }

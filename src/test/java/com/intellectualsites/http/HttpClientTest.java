@@ -1,5 +1,32 @@
+//
+// MIT License
+//
+// Copyright (c) 2020 IntellectualSites
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
 package com.intellectualsites.http;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.intellectualsites.http.external.GsonMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +36,7 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.mock.action.ExpectationResponseCallback;
 import org.mockserver.model.HttpRequest;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HttpClientTest {
 
     private static final int PORT = 1080;
+    private static final Gson GSON = new GsonBuilder().create();
     private static final String BASE_PATH = String.format("http://localhost:%d", PORT);
     private static final String BASE_BODY = "Unicorns are real!";
     private static final String BASE_HEADER_KEY = "X-Test-Header";
@@ -25,7 +54,9 @@ public class HttpClientTest {
 
     private HttpClient client;
 
-    @BeforeAll static void setupServer() throws Throwable {
+    @BeforeAll static void setupServer() {
+        final JsonObject object = new JsonObject();
+        object.addProperty("hello", "world");
         mockServer = ClientAndServer.startClientAndServer(PORT);
         mockServer.when(HttpRequest.request().withMethod("GET").withPath("/")).respond(
             org.mockserver.model.HttpResponse.response().withStatusCode(200)
@@ -34,6 +65,8 @@ public class HttpClientTest {
             .respond(new EchoCallBack());
         mockServer.when(HttpRequest.request().withPath("/invalid"))
             .respond(org.mockserver.model.HttpResponse.notFoundResponse());
+        mockServer.when(HttpRequest.request().withPath("/gson"))
+            .respond(org.mockserver.model.HttpResponse.response(GSON.toJson(object)));
     }
 
     public static final class EchoCallBack implements ExpectationResponseCallback {
@@ -50,7 +83,8 @@ public class HttpClientTest {
     }
 
     @BeforeEach void setupClient() {
-        final EntityMapper mapper = EntityMapper.newInstance();
+        final EntityMapper mapper = EntityMapper.newInstance()
+            .registerDeserializer(JsonObject.class, GsonMapper.deserializer(JsonObject.class, GSON));
         this.client =
             HttpClient.newBuilder().withBaseURL(BASE_PATH).withEntityMapper(mapper).build();
     }
@@ -83,6 +117,11 @@ public class HttpClientTest {
         this.client.get("/invalid").onStatus(404, response -> {
             throw new TestException();
         }).onException(ignored -> {}).execute();
+    }
+
+    @Test void testGson() {
+        final JsonObject object = Objects.requireNonNull(this.client.get("/gson").execute()).getResponseEntity(JsonObject.class);
+        assertEquals("world", object.get("hello").getAsString());
     }
 
 

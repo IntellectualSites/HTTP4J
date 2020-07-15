@@ -91,8 +91,18 @@ public final class HttpResponse {
      * @throws IllegalArgumentException If no mapper exists for the type
      */
     @NotNull public <T> T getResponseEntity(@NotNull final Class<T> returnType) {
-        return this.entityMapper.getDeserialiser(returnType).map(deserializer -> deserializer.deserialize(getRawResponse()))
-            .orElseThrow(() -> new IllegalStateException(String.format("Could not deserialize response into type '%s'", returnType.getCanonicalName())));
+        final String contentTypeString = this.headers.getOrDefault("content-type", null);
+        final ContentType contentType;
+        if (contentTypeString != null) {
+            contentType = ContentType.of(contentTypeString);
+        } else {
+            contentType = null;
+        }
+
+        return this.entityMapper.getDeserialiser(returnType).map(deserializer ->
+            deserializer.deserialize(contentType, this.getRawResponse()))
+            .orElseThrow(() -> new IllegalStateException(String.format("Could not deserialize response into type '%s'",
+                returnType.getCanonicalName())));
     }
 
 

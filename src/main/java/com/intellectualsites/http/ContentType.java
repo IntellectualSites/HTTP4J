@@ -34,7 +34,7 @@ public final class ContentType {
 
     private static final Map<String, ContentType> internalMap = new HashMap<>();
 
-    public static final ContentType JSON = of("application/json");
+    public static final ContentType JSON = of("application/json; charset=UTF-8");
     public static final ContentType XML = of("application/xml");
     public static final ContentType DUMMY = of("application/*");
     public static final ContentType STRING_UTF8 = of("text/html; charset=UTF-8");
