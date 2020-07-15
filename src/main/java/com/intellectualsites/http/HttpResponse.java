@@ -35,12 +35,15 @@ public final class HttpResponse {
     private final Headers headers;
     private final EntityMapper entityMapper;
     private final int code;
+    private final String status;
     private final byte[] body;
 
     private HttpResponse(final int code,
+                         @NotNull final String status,
                          @NotNull final Headers headers,
                          @NotNull final EntityMapper entityMapper,
                          @NotNull final byte[] body) {
+        this.status = status;
         this.code = code;
         this.headers = headers;
         this.entityMapper = entityMapper;
@@ -54,6 +57,15 @@ public final class HttpResponse {
      */
     @NotNull static Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * Get the HTTP status message
+     *
+     * @return Status message
+     */
+    @NotNull public String getStatus() {
+        return this.status;
     }
 
     /**
@@ -111,6 +123,7 @@ public final class HttpResponse {
 
         private final Headers headers = Headers.newInstance();
         private int status;
+        private String statusMessage;
         private EntityMapper entityMapper;
         private byte[] bytes = new byte[0];
 
@@ -119,6 +132,11 @@ public final class HttpResponse {
 
         @NotNull Builder withStatus(final int status) {
             this.status = status;
+            return this;
+        }
+
+        @NotNull Builder withStatusMessage(@NotNull final String statusMessage) {
+            this.statusMessage = statusMessage;
             return this;
         }
 
@@ -139,7 +157,8 @@ public final class HttpResponse {
         }
 
         @NotNull HttpResponse build() {
-            return new HttpResponse(this.status, this.headers, this.entityMapper, this.bytes);
+            return new HttpResponse(this.status, this.statusMessage,
+                this.headers, this.entityMapper, this.bytes);
         }
 
     }

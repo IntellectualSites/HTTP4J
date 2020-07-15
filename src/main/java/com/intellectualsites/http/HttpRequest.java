@@ -128,7 +128,9 @@ final class HttpRequest {
             }
 
             final HttpResponse.Builder builder = HttpResponse.builder()
-                .withStatus(httpURLConnection.getResponseCode()).withEntityMapper(this.mapper);
+                .withStatus(httpURLConnection.getResponseCode())
+                .withStatusMessage(httpURLConnection.getResponseMessage())
+                .withEntityMapper(this.mapper);
             for (final Map.Entry<String, List<String>> entry : httpURLConnection.getHeaderFields().entrySet()) {
                 if (entry.getKey() == null) {
                     continue;

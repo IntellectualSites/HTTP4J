@@ -98,6 +98,8 @@ public class HttpClientTest {
     @Test void testSimpleGet() {
         final HttpResponse response = this.client.get("/").execute();
         assertNotNull(response);
+        assertEquals("OK", response.getStatus());
+        assertEquals(200, response.getStatusCode());
         assertEquals(BASE_BODY, response.getResponseEntity(String.class));
         assertEquals(BASE_HEADER_VALUE, response.getHeaders().getHeader(BASE_HEADER_KEY));
     }
