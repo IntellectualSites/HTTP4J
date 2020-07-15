@@ -33,14 +33,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 /**
  * A simple Java HTTP client
  */
 public final class HttpClient {
-
-    private static final Logger logger = Logger.getLogger(HttpClient.class.getCanonicalName());
 
     private final EntityMapper mapper = new EntityMapper();
     private final ClientSettings settings;
@@ -231,7 +228,6 @@ public final class HttpClient {
                 final URL javaURL = new URL(url);
                 builder.withURL(javaURL);
             } catch (MalformedURLException e) {
-                logger.severe("Malformed URL: " + e.getMessage());
                 throw new RuntimeException(e);
             }
             builder.withMethod(method);
