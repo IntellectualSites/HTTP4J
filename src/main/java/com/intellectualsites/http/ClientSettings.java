@@ -24,6 +24,7 @@
 package com.intellectualsites.http;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -33,6 +34,7 @@ import java.util.Objects;
 final class ClientSettings {
 
     private String baseURL;
+    private EntityMapper entityMapper;
 
     ClientSettings() {
         this.baseURL = "";
@@ -49,6 +51,16 @@ final class ClientSettings {
     }
 
     /**
+     * Get the entity mapper that should be used
+     * in all request (by default)
+     *
+     * @return Entity mapper
+     */
+    @Nullable EntityMapper getEntityMapper() {
+        return this.entityMapper;
+    }
+
+    /**
      * Set the base URL, that is prepended to
      * the URL of each request
      *
@@ -56,6 +68,16 @@ final class ClientSettings {
      */
     void setBaseURL(@NotNull final String baseURL) {
         this.baseURL = Objects.requireNonNull(baseURL);
+    }
+
+    /**
+     * Set the default entity mapper that is used
+     * by all requests, unless otherwise specified
+     *
+     * @param entityMapper Entity mapper
+     */
+    void setEntityMapper(@Nullable final EntityMapper entityMapper) {
+        this.entityMapper = entityMapper;
     }
 
 }

@@ -97,7 +97,8 @@ final class HttpRequest {
                     httpURLConnection.addRequestProperty(headerName, headerBuilder.toString());
                 }
             }
-            httpURLConnection.setDoInput(this.inputSupplier != null);
+            httpURLConnection.setDoInput(this.method.hasBody());
+            httpURLConnection.setDoOutput(this.inputSupplier != null);
             if (this.inputSupplier != null) {
                 final Object object = this.inputSupplier.get();
                 if (object != null) {
@@ -105,7 +106,9 @@ final class HttpRequest {
                         this.mapper.getSerializer(object.getClass()).orElseThrow(() -> new IllegalArgumentException(String
                             .format("There is no registered serializer for type '%s'",
                                 object.getClass().getCanonicalName())));
-                    httpURLConnection.setRequestProperty("Content-Type", serializer.getContentType().toString());
+                    if (!this.headers.getHeader("Content-Type").isEmpty()) {
+                        httpURLConnection.setRequestProperty("Content-Type", serializer.getContentType().toString());
+                    }
                     final byte[] bytes = serializer.serialize(object);
                     httpURLConnection.setRequestProperty("Content-Length", Integer.toString(bytes.length));
                     try (final DataOutputStream dataOutputStream = new DataOutputStream(
@@ -116,6 +119,14 @@ final class HttpRequest {
                 }
             }
             httpURLConnection.connect();
+
+            final InputStream stream;
+            if (httpURLConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                stream = httpURLConnection.getErrorStream();
+            } else {
+                stream = httpURLConnection.getInputStream();
+            }
+
             final HttpResponse.Builder builder = HttpResponse.builder()
                 .withStatus(httpURLConnection.getResponseCode()).withEntityMapper(this.mapper);
             for (final Map.Entry<String, List<String>> entry : httpURLConnection.getHeaderFields().entrySet()) {
@@ -127,20 +138,14 @@ final class HttpRequest {
                 }
             }
 
-            final InputStream stream;
-            if (httpURLConnection.getErrorStream() != null) {
-                stream = httpURLConnection.getErrorStream();
-            } else {
-                stream = httpURLConnection.getInputStream();
-            }
-
-            try (final InputStream copy = stream;
-                final ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                int b;
-                while ((b = stream.read()) != -1) {
-                    bos.write(b);
+            if (stream != null) {
+                try (final InputStream copy = stream; final ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                    int b;
+                    while ((b = stream.read()) != -1) {
+                        bos.write(b);
+                    }
+                    builder.withBody(bos.toByteArray());
                 }
-                builder.withBody(bos.toByteArray());
             }
 
             return builder.build();
@@ -238,7 +243,6 @@ final class HttpRequest {
             Objects.requireNonNull(this.method, "No method was supplied");
             Objects.requireNonNull(this.url, "No URL was supplied");
             Objects.requireNonNull(this.mapper, "No mapper was supplied");
-            Objects.requireNonNull(this.inputSupplier, "No input supplier was supplied");
             Objects.requireNonNull(this.throwableConsumer, "No throwable consumer was supplied");
             return new HttpRequest(this.method, this.url, this.headers,
                 this.inputSupplier, this.mapper, this.throwableConsumer);

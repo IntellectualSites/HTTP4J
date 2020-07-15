@@ -24,6 +24,7 @@
 package com.intellectualsites.http;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -159,6 +160,18 @@ public final class HttpClient {
         }
 
         /**
+         * Set the default entity mapper that is used
+         * by all requests, unless otherwise specified
+         *
+         * @param entityMapper Entity mapper
+         * @return Builder instance
+         */
+        @NotNull public Builder withEntityMapper(@Nullable final EntityMapper entityMapper) {
+            this.settings.setEntityMapper(entityMapper);
+            return this;
+        }
+
+        /**
          * Create a new {@link HttpClient} using the
          * settings specified in the builder
          *
@@ -196,6 +209,9 @@ public final class HttpClient {
                 throw new RuntimeException(e);
             }
             builder.withMethod(method);
+            if (settings.getEntityMapper() != null) {
+                builder.withMapper(settings.getEntityMapper());
+            }
         }
 
         /**
@@ -275,8 +291,12 @@ public final class HttpClient {
 
         /**
          * Perform the request
+         *
+         * @return The raw response, if no exception was thrown during the
+         *         handling of the response. If any exception was handled,
+         *         the method will return {@code null}
          */
-        public void execute() {
+        @Nullable public HttpResponse execute() {
             try {
                 final Throwable[] throwables = new Throwable[1];
                 if (this.exceptionHandler == null) {
@@ -288,13 +308,22 @@ public final class HttpClient {
                     responseConsumer.accept(response);
                 }
                 if (throwables[0] != null) {
+                    if (throwables[0] instanceof RuntimeException) {
+                        throw (RuntimeException) throwables[0];
+                    }
                     throw new RuntimeException(throwables[0]);
+                } else {
+                    return response;
                 }
             } catch (final Exception e) {
                 if (this.exceptionHandler == null) {
+                    if (e instanceof RuntimeException) {
+                        throw ((RuntimeException) e);
+                    }
                     throw new RuntimeException(e);
                 }
             }
+            return null;
         }
 
     }

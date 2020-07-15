@@ -51,6 +51,7 @@ public final class EntityMapper {
     @NotNull public static EntityMapper newInstance() {
         final EntityMapper mapper = new EntityMapper();
         mapper.registerDeserializer(String.class, new StringDeserializer());
+        mapper.registerSerializer(String.class, new StringSerializer());
         return mapper;
     }
 
@@ -165,6 +166,19 @@ public final class EntityMapper {
 
         @NotNull @Override public String deserialize(@NotNull final byte[] input) {
             return new String(input, StandardCharsets.US_ASCII);
+        }
+
+    }
+
+
+    private static final class StringSerializer implements EntitySerializer<String> {
+
+        @NotNull @Override public byte[] serialize(@NotNull final String string) {
+            return string.getBytes(StandardCharsets.UTF_8);
+        }
+
+        @Override public ContentType getContentType() {
+            return ContentType.STRING_UTF8;
         }
 
     }
