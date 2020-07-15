@@ -38,6 +38,8 @@ HTT4J is available from [IntellectualSites](https://intellectualsites.com)' mave
 
 ### Code
 
+**JavaDocs:** [https://plotsquared.com/docs/http4j/](https://plotsquared.com/docs/http4j/)
+
 All requests are done using an instance of `com.intellectualsites.http.HttpClient`:
 
 ```java

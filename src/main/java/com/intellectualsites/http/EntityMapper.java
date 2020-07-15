@@ -107,10 +107,11 @@ public final class EntityMapper {
     /**
      * Attempt to retrieve the deserializer for a given content type
      *
-     * @param type Content type
+     * @param type Content class
+     * @param <T>  Content type
      * @return Deserializer
      */
-    public <T> Optional<EntityDeserializer<T>> getDeserialiser(@NotNull final Class<T> type) {
+    public <T> Optional<EntityDeserializer<T>> getDeserializer(@NotNull final Class<T> type) {
         final EntityDeserializer<?> entityDeserializer = this.deserializers.get(type);
         if (entityDeserializer == null) {
             return Optional.empty();
@@ -157,21 +158,24 @@ public final class EntityMapper {
          * Deserialize the input byte array into an object.
          *
          * @param contentType Optional content type, if supplied by the server
-         * @param input Input that should be de-serialized
+         * @param input       Input that should be de-serialized
          * @return De-serialized input
          */
-        @NotNull T deserialize(@Nullable final ContentType contentType, @NotNull final byte[] input);
+        @NotNull T deserialize(@Nullable final ContentType contentType,
+            @NotNull final byte[] input);
 
     }
 
 
     private static final class StringDeserializer implements EntityDeserializer<String> {
 
-        @NotNull @Override public String deserialize(@Nullable final ContentType contentType, @NotNull final byte[] input) {
+        @NotNull @Override public String deserialize(@Nullable final ContentType contentType,
+            @NotNull final byte[] input) {
             final Charset charset;
             if (contentType != null && contentType.toString().toLowerCase().contains("utf-8")) {
                 charset = StandardCharsets.UTF_8;
-            } else if (contentType != null && contentType.toString().toLowerCase().contains("utf-16")) {
+            } else if (contentType != null && contentType.toString().toLowerCase()
+                .contains("utf-16")) {
                 charset = StandardCharsets.UTF_16;
             } else {
                 charset = StandardCharsets.US_ASCII;

@@ -134,6 +134,10 @@ public final class HttpClient {
     }
 
 
+    /**
+     * Builder for {@link HttpClient}. Use {@link #newBuilder()} to create
+     * an instance of the builder
+     */
     public static final class Builder {
 
         private final ClientSettings settings;
@@ -196,6 +200,16 @@ public final class HttpClient {
     }
 
 
+    /**
+     * Wrapper used to interact with HTTP requests.
+     *
+     * @see #get(String) To create a new GET request
+     * @see #post(String) To create a new POST request
+     * @see #head(String) To create a new HEAD request
+     * @see #put(String) To create a new PUT request
+     * @see #patch(String) To create a new PATCH request
+     * @see #delete(String) To create a new DELETE request
+     */
     public final class WrappedRequestBuilder {
 
         private final HttpRequest.Builder builder = HttpRequest.newBuilder();

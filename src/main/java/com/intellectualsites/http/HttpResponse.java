@@ -86,7 +86,8 @@ public final class HttpResponse {
     /**
      * Get the response entity and map it to a specific type
      *
-     * @param returnType Return type
+     * @param returnType Return type class
+     * @param <T> Return type
      * @return Response
      * @throws IllegalArgumentException If no mapper exists for the type
      */
@@ -99,7 +100,7 @@ public final class HttpResponse {
             contentType = null;
         }
 
-        return this.entityMapper.getDeserialiser(returnType).map(deserializer ->
+        return this.entityMapper.getDeserializer(returnType).map(deserializer ->
             deserializer.deserialize(contentType, this.getRawResponse()))
             .orElseThrow(() -> new IllegalStateException(String.format("Could not deserialize response into type '%s'",
                 returnType.getCanonicalName())));
