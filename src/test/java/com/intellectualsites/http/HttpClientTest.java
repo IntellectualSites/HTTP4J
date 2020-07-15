@@ -79,6 +79,12 @@ public class HttpClientTest {
         }).execute());
     }
 
+    @Test void testNotThrow() {
+        this.client.get("/invalid").onStatus(404, response -> {
+            throw new TestException();
+        }).onException(ignored -> {}).execute();
+    }
+
 
     public static class TestException extends RuntimeException {
     }
