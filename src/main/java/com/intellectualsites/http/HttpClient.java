@@ -150,7 +150,7 @@ public final class HttpClient {
          * @return Builder instance
          */
         @NotNull public Builder withBaseURL(@NotNull final String baseURL) {
-            Objects.requireNonNull(baseURL);
+            Objects.requireNonNull(baseURL, "Base URL may not be null");
             if (baseURL.endsWith("/")) {
                 this.settings.setBaseURL(baseURL.substring(0, baseURL.length() - 1));
             } else {
@@ -168,6 +168,18 @@ public final class HttpClient {
          */
         @NotNull public Builder withEntityMapper(@Nullable final EntityMapper entityMapper) {
             this.settings.setEntityMapper(entityMapper);
+            return this;
+        }
+
+        /**
+         * Add a new request decorator. This will have the opportunity
+         * to decorate every request made by this client
+         *
+         * @param decorator Decorator
+         * @return Builder instance
+         */
+        @NotNull public Builder withDecorator(@NotNull final Consumer<WrappedRequestBuilder> decorator) {
+            this.settings.addDecorator(Objects.requireNonNull(decorator, "Decorator may not be null"));
             return this;
         }
 
@@ -297,6 +309,9 @@ public final class HttpClient {
          *         the method will return {@code null}
          */
         @Nullable public HttpResponse execute() {
+            for (final Consumer<WrappedRequestBuilder> decorator : settings.getRequestDecorators()) {
+                decorator.accept(this);
+            }
             try {
                 final Throwable[] throwables = new Throwable[1];
                 if (this.exceptionHandler == null) {

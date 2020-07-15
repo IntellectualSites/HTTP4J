@@ -26,13 +26,18 @@ package com.intellectualsites.http;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Settings that change the behaviour of {@link HttpClient}
  */
 final class ClientSettings {
 
+    private final Collection<Consumer<HttpClient.WrappedRequestBuilder>> decorators = new LinkedList<>();
     private String baseURL;
     private EntityMapper entityMapper;
 
@@ -61,13 +66,22 @@ final class ClientSettings {
     }
 
     /**
+     * Get all registered request decorators
+     *
+     * @return Unmodifiable collection of decorators
+     */
+    @NotNull Collection<Consumer<HttpClient.WrappedRequestBuilder>> getRequestDecorators() {
+        return Collections.unmodifiableCollection(this.decorators);
+    }
+
+    /**
      * Set the base URL, that is prepended to
      * the URL of each request
      *
      * @param baseURL base URL
      */
     void setBaseURL(@NotNull final String baseURL) {
-        this.baseURL = Objects.requireNonNull(baseURL);
+        this.baseURL = Objects.requireNonNull(baseURL, "Base URL may not be null");
     }
 
     /**
@@ -78,6 +92,16 @@ final class ClientSettings {
      */
     void setEntityMapper(@Nullable final EntityMapper entityMapper) {
         this.entityMapper = entityMapper;
+    }
+
+    /**
+     * Add a new request decorator. This will have the opportunity
+     * to decorate every request made by this client
+     *
+     * @param decorator Decorator
+     */
+    void addDecorator(@NotNull final Consumer<HttpClient.WrappedRequestBuilder> decorator) {
+        this.decorators.add(Objects.requireNonNull(decorator, "Decorator may not be null"));
     }
 
 }

@@ -49,6 +49,8 @@ public class HttpClientTest {
     private static final String BASE_BODY = "Unicorns are real!";
     private static final String BASE_HEADER_KEY = "X-Test-Header";
     private static final String BASE_HEADER_VALUE = "yay";
+    private static final String ECHO_HEADER_KEY = "X-Test-Echo";
+    private static final String ECHO_HEADER_VALUE = "Wooo!";
     private static final String ECHO_CONTENT = UUID.randomUUID().toString();
     private static MockServerClient mockServer;
 
@@ -72,7 +74,8 @@ public class HttpClientTest {
     public static final class EchoCallBack implements ExpectationResponseCallback {
 
         @Override public org.mockserver.model.HttpResponse handle(HttpRequest httpRequest) {
-            return org.mockserver.model.HttpResponse.response(httpRequest.getBodyAsString());
+            return org.mockserver.model.HttpResponse.response(httpRequest.getBodyAsString())
+                .withHeader(ECHO_HEADER_KEY, httpRequest.getFirstHeader(ECHO_HEADER_KEY));
         }
 
     }
@@ -85,8 +88,11 @@ public class HttpClientTest {
     @BeforeEach void setupClient() {
         final EntityMapper mapper = EntityMapper.newInstance()
             .registerDeserializer(JsonObject.class, GsonMapper.deserializer(JsonObject.class, GSON));
-        this.client =
-            HttpClient.newBuilder().withBaseURL(BASE_PATH).withEntityMapper(mapper).build();
+        this.client = HttpClient.newBuilder()
+            .withBaseURL(BASE_PATH)
+            .withEntityMapper(mapper)
+            .withDecorator(request -> request.withHeader(ECHO_HEADER_KEY, ECHO_HEADER_VALUE))
+            .build();
     }
 
     @Test void testSimpleGet() {
@@ -105,6 +111,7 @@ public class HttpClientTest {
             }).execute();
         assertNotNull(echoResponse);
         assertEquals(ECHO_CONTENT, echoResponse.getResponseEntity(String.class));
+        assertEquals(ECHO_HEADER_VALUE, echoResponse.getHeaders().getHeader(ECHO_HEADER_KEY));
     }
 
     @Test void testThrow() {
