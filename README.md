@@ -96,3 +96,8 @@ By using `onException(exception -> {})` you are able to modify the behaviour.
 #### Examples
 
 More examples can be found in [HttpClientTest.java](https://github.com/Sauilitired/HTTP4J/blob/master/src/test/java/com/intellectualsites/http/HttpClientTest.java)
+
+## Projects using HTTP4J:
+
+**[IntellectualSites/Arkitektonika-Client](https://github.com/IntellectualSites/Arkitektonika-Client)**: Client for the Arkitektonika API
+**[broccolai/tickets](https://github.com/broccolai/tickets)**: Discord bot
