@@ -32,7 +32,7 @@ HTT4J is available from [IntellectualSites](https://intellectualsites.com)' mave
 <dependency>
     <groupId>com.intellectualsites.http</groupId>
     <artifactId>HTTP4J</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
 </dependency>
 ```
 
