@@ -69,7 +69,10 @@ public class HttpClientTest {
             .respond(org.mockserver.model.HttpResponse.notFoundResponse());
         mockServer.when(HttpRequest.request().withPath("/gson"))
             .respond(org.mockserver.model.HttpResponse.response(GSON.toJson(object)));
+        mockServer.when(HttpRequest.request().withPath("/testgson"))
+            .respond(new GsonCallBack());
     }
+
 
     public static final class EchoCallBack implements ExpectationResponseCallback {
 
@@ -81,12 +84,24 @@ public class HttpClientTest {
     }
 
 
+    public static final class GsonCallBack implements ExpectationResponseCallback {
+
+        @Override public org.mockserver.model.HttpResponse handle(HttpRequest httpRequest) {
+            final JsonObject object = GSON.fromJson(httpRequest.getBodyAsString(), JsonObject.class);
+            return org.mockserver.model.HttpResponse.response(Boolean.toString(object.has("gson") &&
+                object.get("gson").getAsString().equals("true") &&
+                httpRequest.getFirstHeader("content-type").equalsIgnoreCase("application/json; charset=UTF-8")));
+        }
+    }
+
+
     @AfterAll static void stopServer() {
         mockServer.stop();
     }
 
     @BeforeEach void setupClient() {
         final EntityMapper mapper = EntityMapper.newInstance()
+            .registerSerializer(JsonObject.class, GsonMapper.serializer(JsonObject.class, GSON))
             .registerDeserializer(JsonObject.class, GsonMapper.deserializer(JsonObject.class, GSON));
         this.client = HttpClient.newBuilder()
             .withBaseURL(BASE_PATH)
@@ -131,6 +146,13 @@ public class HttpClientTest {
     @Test void testGson() {
         final JsonObject object = Objects.requireNonNull(this.client.get("/gson").execute()).getResponseEntity(JsonObject.class);
         assertEquals("world", object.get("hello").getAsString());
+    }
+
+    @Test void testGsonWriting() {
+        final JsonObject object = new JsonObject();
+        object.addProperty("gson", true);
+        assertEquals("true", Objects.requireNonNull(this.client.get("/testgson")
+            .withInput(() -> object).execute()).getResponseEntity(String.class));
     }
 
 

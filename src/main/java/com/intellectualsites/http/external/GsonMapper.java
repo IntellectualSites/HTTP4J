@@ -52,7 +52,7 @@ public final class GsonMapper {
         }
 
         @Override @NotNull public byte[] serialize(@NotNull final T input) {
-            return this.gson.toJson(clazz).getBytes(StandardCharsets.UTF_8);
+            return this.gson.toJson(input).getBytes(StandardCharsets.UTF_8);
         }
 
         @Override public ContentType getContentType() {
