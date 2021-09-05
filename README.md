@@ -19,26 +19,29 @@ size of the output artifacts.
 
 ### Repository
 
-HTT4J is available from [IntellectualSites](https://intellectualsites.com)' maven repository:
+Releases are published to the central repository, snapshots are published to S01 OSS Sonatype.
 
-```xml
-<repository>
-    <id>intellectualsites-snapshots</id>
-    <url>https://mvn.intellectualsites.com/content/repositories/snapshots</url>
-</repository>
+```
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly("com.intellectualsites.http:HTTP4J:1.3")
+}
 ```
 
 ```xml
 <dependency>
     <groupId>com.intellectualsites.http</groupId>
     <artifactId>HTTP4J</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.3</version>
 </dependency>
 ```
 
 ### Code
 
-**JavaDocs:** [https://plotsquared.com/docs/http4j/](https://plotsquared.com/docs/http4j/)
+**JavaDocs:** [https://javadoc.io/doc/com.intellectualsites.http4j/HTTP4J](https://javadoc.io/doc/com.intellectualsites.http4j/HTTP4J)
 
 All requests are done using an instance of `com.intellectualsites.http.HttpClient`:
 
