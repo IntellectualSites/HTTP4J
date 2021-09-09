@@ -35,7 +35,7 @@ configurations.all {
 }
 
 group = "com.intellectualsites.http"
-version = "1.3"
+version = "1.4"
 var versuffix by extra("SNAPSHOT")
 version = if (!project.hasProperty("release")) {
     String.format("%s-%s", project.version, versuffix)
