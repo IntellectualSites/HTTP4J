@@ -98,7 +98,7 @@ By using `onException(exception -> {})` you are able to modify the behaviour.
 
 #### Examples
 
-More examples can be found in [HttpClientTest.java](https://github.com/Sauilitired/HTTP4J/blob/master/src/test/java/com/intellectualsites/http/HttpClientTest.java)
+More examples can be found in [HttpClientTest.java](https://github.com/Incendo/HTTP4J/blob/master/src/test/java/com/intellectualsites/http/HttpClientTest.java)
 
 ## Projects using HTTP4J:
 
