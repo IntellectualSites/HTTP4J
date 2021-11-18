@@ -1,4 +1,5 @@
 import org.cadixdev.gradle.licenser.LicenseExtension
+import java.net.URI
 
 plugins {
     java
@@ -6,6 +7,10 @@ plugins {
     signing
 
     id("org.cadixdev.licenser") version "0.6.1"
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+
+    idea
+    eclipse
 }
 
 repositories {
@@ -14,12 +19,12 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains:annotations:22.0.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
-    testImplementation("org.mock-server:mockserver-netty:5.11.0")
-    testImplementation("org.mock-server:mockserver-client-java:5.11.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("org.mock-server:mockserver-netty:5.11.2")
+    testImplementation("org.mock-server:mockserver-client-java:5.11.2")
     testImplementation("ch.qos.logback:logback-classic:1.3.0-alpha4")
-    compileOnly("com.google.code.gson:gson:2.8.8")
-    testCompileOnly("com.google.code.gson:gson:2.8.8")
+    compileOnly("com.google.code.gson:gson:2.8.9")
+    testCompileOnly("com.google.code.gson:gson:2.8.9")
 }
 
 java {
@@ -35,13 +40,7 @@ configurations.all {
 }
 
 group = "com.intellectualsites.http"
-version = "1.4"
-var versuffix by extra("SNAPSHOT")
-version = if (!project.hasProperty("release")) {
-    String.format("%s-%s", project.version, versuffix)
-} else {
-    String.format(project.version as String)
-}
+version = "1.4-SNAPSHOT"
 
 java {
     withSourcesJar()
@@ -49,7 +48,8 @@ java {
 }
 
 configure<LicenseExtension> {
-    header.set(resources.text.fromFile(file("LICENSE")))
+    header(rootProject.file("LICENSE"))
+    include("**/*.java")
     newLine.set(false)
 }
 
@@ -72,7 +72,6 @@ tasks {
             "implSpec:a:Implementation Requirements:",
             "implNote:a:Implementation Note:"
         )
-        opt.addBooleanOption("html5", true)
         opt.links("https://javadoc.io/doc/org.jetbrains/annotations/22.0.0/")
         opt.links("https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.8/")
     }
@@ -80,6 +79,9 @@ tasks {
 
 signing {
     if (!version.toString().endsWith("-SNAPSHOT")) {
+        val signingKey: String? by project
+        val signingPassword: String? by project
+        useInMemoryPgpKeys(signingKey, signingPassword)
         signing.isRequired
         sign(publishing.publications)
     }
@@ -124,27 +126,13 @@ publishing {
             }
         }
     }
+}
 
+nexusPublishing {
     repositories {
-        mavenLocal()
-        val nexusUsername: String? by project
-        val nexusPassword: String? by project
-        if (nexusUsername != null && nexusPassword != null) {
-            maven {
-                val releasesRepositoryUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                val snapshotRepositoryUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                url = uri(
-                    if (version.toString().endsWith("-SNAPSHOT")) snapshotRepositoryUrl
-                    else releasesRepositoryUrl
-                )
-
-                credentials {
-                    username = nexusUsername
-                    password = nexusPassword
-                }
-            }
-        } else {
-            logger.warn("No nexus repository is added; nexusUsername or nexusPassword is null.")
+        sonatype {
+            nexusUrl.set(URI.create("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(URI.create("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
     }
 }
