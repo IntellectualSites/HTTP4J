@@ -1,0 +1,21 @@
+[versions]
+annotations = "23.0.0"
+jupiter = "5.8.2"
+mockserver = "5.13.2"
+logback = "1.3.0-alpha15"
+gson = "2.8.9"
+
+licenser = "0.6.1"
+nexus  = "1.1.0"
+
+[libraries]
+annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+jupiter = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "jupiter" }
+mockserverNetty = { group = "org.mock-server", name = "mockserver-netty", version.ref = "mockserver" }
+mockserverClient = { group = "org.mock-server", name = "mockserver-client-java", version.ref = "mockserver" }
+logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+
+[plugins]
+licenser = { id = "org.cadixdev.licenser", version.ref = "licenser" }
+nexus = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus" }

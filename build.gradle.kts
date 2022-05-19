@@ -6,8 +6,8 @@ plugins {
     `maven-publish`
     signing
 
-    id("org.cadixdev.licenser") version "0.6.1"
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    alias(libs.plugins.licenser)
+    alias(libs.plugins.nexus)
 
     idea
     eclipse
@@ -18,17 +18,17 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains:annotations:22.0.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-    testImplementation("org.mock-server:mockserver-netty:5.11.2")
-    testImplementation("org.mock-server:mockserver-client-java:5.11.2")
-    testImplementation("ch.qos.logback:logback-classic:1.3.0-alpha4")
-    compileOnly("com.google.code.gson:gson:2.8.9")
-    testCompileOnly("com.google.code.gson:gson:2.8.9")
+    implementation(libs.annotations)
+    testImplementation(libs.jupiter)
+    testImplementation(libs.mockserverNetty)
+    testImplementation(libs.mockserverClient)
+    testImplementation(libs.logback)
+    compileOnly(libs.gson)
+    testCompileOnly(libs.gson)
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks.compileJava.configure {
@@ -36,7 +36,7 @@ tasks.compileJava.configure {
 }
 
 configurations.all {
-    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 16)
+    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
 }
 
 group = "com.intellectualsites.http"
@@ -72,7 +72,7 @@ tasks {
             "implSpec:a:Implementation Requirements:",
             "implNote:a:Implementation Note:"
         )
-        opt.links("https://javadoc.io/doc/org.jetbrains/annotations/22.0.0/")
+        opt.links("https://javadoc.io/doc/org.jetbrains/annotations/23.0.0/")
         opt.links("https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.8/")
     }
 }
