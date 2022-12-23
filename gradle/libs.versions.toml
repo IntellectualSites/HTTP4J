@@ -2,7 +2,7 @@
 annotations = "23.0.0"
 jupiter = "5.9.1"
 mockserver = "5.14.0"
-logback = "1.3.0-alpha16"
+logback = "1.4.5"
 gson = "2.8.9"
 
 licenser = "0.6.1"
