@@ -3,7 +3,7 @@ annotations = "23.1.0"
 jupiter = "5.9.1"
 mockserver = "5.14.0"
 logback = "1.4.5"
-gson = "2.8.9"
+gson = "2.10.1"
 
 licenser = "0.6.1"
 nexus  = "1.1.0"
