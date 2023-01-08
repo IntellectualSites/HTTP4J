@@ -1,4 +1,4 @@
-import org.cadixdev.gradle.licenser.LicenseExtension
+import com.diffplug.gradle.spotless.SpotlessPlugin
 import java.net.URI
 
 plugins {
@@ -6,7 +6,7 @@ plugins {
     `maven-publish`
     signing
 
-    alias(libs.plugins.licenser)
+    alias(libs.plugins.spotless)
     alias(libs.plugins.nexus)
 
     idea
@@ -47,10 +47,11 @@ java {
     withJavadocJar()
 }
 
-configure<LicenseExtension> {
-    header(rootProject.file("LICENSE"))
-    include("**/*.java")
-    newLine.set(false)
+spotless {
+    java {
+        licenseHeaderFile(rootProject.file("LICENSE"))
+        target("**/*.java")
+    }
 }
 
 tasks {

@@ -5,7 +5,7 @@ mockserver = "5.14.0"
 logback = "1.4.5"
 gson = "2.8.9"
 
-licenser = "0.6.1"
+spotless = "6.12.1"
 nexus  = "1.1.0"
 
 [libraries]
@@ -17,5 +17,5 @@ logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "l
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 [plugins]
-licenser = { id = "org.cadixdev.licenser", version.ref = "licenser" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 nexus = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus" }
