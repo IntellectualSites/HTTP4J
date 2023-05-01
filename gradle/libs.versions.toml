@@ -2,7 +2,7 @@
 annotations = "24.0.1"
 jupiter = "5.9.2"
 mockserver = "5.15.0"
-logback = "1.4.6"
+logback = "1.4.7"
 gson = "2.8.9"
 
 spotless = "6.17.0"
