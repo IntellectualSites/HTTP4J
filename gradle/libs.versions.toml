@@ -1,6 +1,6 @@
 [versions]
 annotations = "24.0.1"
-jupiter = "5.9.3"
+jupiter = "5.10.0"
 mockserver = "5.15.0"
 logback = "1.4.8"
 gson = "2.8.9"
