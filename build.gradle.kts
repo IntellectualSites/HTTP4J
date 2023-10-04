@@ -97,7 +97,7 @@ publishing {
 
                 name.set(project.name + " " + project.version)
                 description.set("A simple, lightweight and tiny wrapper for Java's HttpURLConnection")
-                url.set("https://github.com/Incendo/HTTP4J/")
+                url.set("https://github.com/IntellectualSites/HTTP4J/")
 
                 licenses {
                     license {
@@ -111,18 +111,21 @@ publishing {
                     developer {
                         id.set("Citymonstret")
                         name.set("Alexander Söderberg")
+                        organization.set("IntellectualSites")
+                        organizationUrl.set("https://github.com/IntellectualSites/")
                     }
                 }
 
                 scm {
-                    url.set("https://github.com/Incendo/HTTP4J/")
-                    connection.set("scm:https://Incendo@github.com/Incendo/HTTP4J.git")
-                    developerConnection.set("scm:git://github.com/Incendo/HTTP4J.git")
+                    url.set("https://github.com/IntellectualSites/HTTP4J/")
+                    connection.set("scm:git:https://github.com/IntellectualSites/HTTP4J.git")
+                    developerConnection.set("scm:git:git@github.com:IntellectualSites/HTTP4J.git")
+                    tag.set("${project.version}")
                 }
 
                 issueManagement{
                     system.set("GitHub")
-                    url.set("https://github.com/Incendo/HTTP4J/issues")
+                    url.set("https://github.com/IntellectualSites/HTTP4J/issues")
                 }
             }
         }
