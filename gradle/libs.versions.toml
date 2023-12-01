@@ -1,5 +1,5 @@
 [versions]
-annotations = "24.0.1"
+annotations = "24.1.0"
 jupiter = "5.10.0"
 mockserver = "5.15.0"
 logback = "1.4.11"
