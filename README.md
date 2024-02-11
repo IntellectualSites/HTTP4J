@@ -27,9 +27,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.intellectualsites.http:HTTP4J:1.4")
+    implementation("com.intellectualsites.http:HTTP4J:1.4")
 }
 ```
+
+Ensure to relocate HTTP4J using the [shadow](https://github.com/johnrengelman/shadow) plugin to your classpath.
 
 ```xml
 <dependency>
@@ -41,7 +43,7 @@ dependencies {
 
 ### Code
 
-**JavaDocs:** [https://javadoc.io/doc/com.intellectualsites.http4j/HTTP4J](https://javadoc.io/doc/com.intellectualsites.http4j/HTTP4J)
+**JavaDocs:** [https://javadocs.dev/com.intellectualsites.http/HTTP4J/](https://javadoc.io/doc/com.intellectualsites.http4j/HTTP4J)
 
 All requests are done using an instance of `com.intellectualsites.http.HttpClient`:
 
@@ -98,7 +100,7 @@ By using `onException(exception -> {})` you are able to modify the behaviour.
 
 #### Examples
 
-More examples can be found in [HttpClientTest.java](https://github.com/Incendo/HTTP4J/blob/master/src/test/java/com/intellectualsites/http/HttpClientTest.java)
+More examples can be found in [HttpClientTest.java](https://github.com/IntellectualSites/HTTP4J/blob/main/src/test/java/com/intellectualsites/http/HttpClientTest.java)
 
 ## Projects using HTTP4J:
 
