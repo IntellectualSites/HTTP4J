@@ -18,13 +18,15 @@ repositories {
 }
 
 dependencies {
+    compileOnly(libs.gson)
     implementation(libs.annotations)
+
     testImplementation(libs.jupiter)
     testImplementation(libs.mockserverNetty)
     testImplementation(libs.mockserverClient)
     testImplementation(libs.logback)
-    compileOnly(libs.gson)
     testCompileOnly(libs.gson)
+    testRuntimeOnly(libs.junitPlatform)
 }
 
 java {
@@ -33,10 +35,6 @@ java {
 
 tasks.compileJava.configure {
     options.release.set(8)
-}
-
-configurations.all {
-    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
 }
 
 group = "com.intellectualsites.http"
@@ -73,8 +71,8 @@ tasks {
             "implSpec:a:Implementation Requirements:",
             "implNote:a:Implementation Note:"
         )
-        opt.links("https://javadoc.io/doc/org.jetbrains/annotations/23.0.0/")
-        opt.links("https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.8/")
+        opt.links("https://javadoc.io/doc/org.jetbrains/annotations/" + libs.annotations.get().versionConstraint.toString())
+        opt.links("https://www.javadoc.io/doc/com.google.code.gson/gson/" + libs.gson.get().versionConstraint.toString())
     }
 }
 
@@ -113,6 +111,13 @@ publishing {
                         name.set("Alexander Söderberg")
                         organization.set("IntellectualSites")
                         organizationUrl.set("https://github.com/IntellectualSites/")
+                    }
+                    developer {
+                        id.set("NotMyFault")
+                        name.set("Alexander Brandes")
+                        organization.set("IntellectualSites")
+                        organizationUrl.set("https://github.com/IntellectualSites")
+                        email.set("contact(at)notmyfault.dev")
                     }
                 }
 
