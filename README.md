@@ -43,7 +43,7 @@ Ensure to relocate HTTP4J using the [shadow](https://github.com/johnrengelman/sh
 
 ### Code
 
-**JavaDocs:** [https://javadocs.dev/com.intellectualsites.http/HTTP4J/](https://javadoc.io/doc/com.intellectualsites.http4j/HTTP4J)
+**JavaDocs:** [https://javadocs.dev/com.intellectualsites.http/HTTP4J/](https://javadocs.dev/com.intellectualsites.http/HTTP4J/)
 
 All requests are done using an instance of `com.intellectualsites.http.HttpClient`:
 
