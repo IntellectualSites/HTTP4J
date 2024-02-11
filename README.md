@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.intellectualsites.http:HTTP4J:1.3")
+    compileOnly("com.intellectualsites.http:HTTP4J:1.4")
 }
 ```
 
@@ -35,7 +35,7 @@ dependencies {
 <dependency>
     <groupId>com.intellectualsites.http</groupId>
     <artifactId>HTTP4J</artifactId>
-    <version>1.3</version>
+    <version>1.4</version>
 </dependency>
 ```
 
