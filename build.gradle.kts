@@ -38,7 +38,7 @@ tasks.compileJava.configure {
 }
 
 group = "com.intellectualsites.http"
-version = "1.5-SNAPSHOT"
+version = "1.5"
 
 java {
     withSourcesJar()
