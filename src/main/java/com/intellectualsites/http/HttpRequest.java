@@ -122,7 +122,7 @@ final class HttpRequest {
 
             final InputStream stream;
             if (this.method.hasBody()) {
-                if (httpURLConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                if (httpURLConnection.getResponseCode() >= 400) {
                     stream = httpURLConnection.getErrorStream();
                 } else {
                     stream = httpURLConnection.getInputStream();
