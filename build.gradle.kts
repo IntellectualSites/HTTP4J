@@ -73,11 +73,17 @@ tasks {
         )
         opt.links("https://javadoc.io/doc/org.jetbrains/annotations/" + libs.annotations.get().versionConstraint.toString())
         opt.links("https://www.javadoc.io/doc/com.google.code.gson/gson/" + libs.gson.get().versionConstraint.toString())
+        opt.noTimestamp()
+    }
+
+    withType<AbstractArchiveTask>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
     }
 }
 
 signing {
-    if (!version.toString().endsWith("-SNAPSHOT")) {
+    if (!project.hasProperty("skip.signing") && !version.toString().endsWith("-SNAPSHOT")) {
         val signingKey: String? by project
         val signingPassword: String? by project
         useInMemoryPgpKeys(signingKey, signingPassword)
