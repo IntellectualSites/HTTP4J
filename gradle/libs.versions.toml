@@ -1,7 +1,7 @@
 [versions]
 annotations = "26.0.1"
-jupiter = "5.11.3"
-junit-platform = "1.11.3"
+jupiter = "5.11.4"
+junit-platform = "1.11.4"
 mockserver = "5.15.0"
 logback = "1.5.15"
 gson = "2.11.0"
