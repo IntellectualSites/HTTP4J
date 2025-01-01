@@ -3,7 +3,7 @@ annotations = "26.0.1"
 jupiter = "5.11.3"
 junit-platform = "1.11.3"
 mockserver = "5.15.0"
-logback = "1.5.12"
+logback = "1.5.15"
 gson = "2.11.0"
 
 spotless = "6.25.0"
