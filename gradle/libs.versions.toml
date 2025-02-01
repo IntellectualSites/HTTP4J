@@ -1,5 +1,5 @@
 [versions]
-annotations = "26.0.1"
+annotations = "26.0.2"
 jupiter = "5.11.4"
 junit-platform = "1.11.4"
 mockserver = "5.15.0"
