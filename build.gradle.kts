@@ -38,7 +38,7 @@ tasks.compileJava.configure {
 }
 
 group = "com.intellectualsites.http"
-version = "1.8"
+version = "1.9-SNAPSHOT"
 
 spotless {
     java {
