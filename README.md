@@ -21,29 +21,29 @@ size of the output artifacts.
 
 Releases are published to the central repository, snapshots are published to S01 OSS Sonatype.
 
-```
+```kotlin
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("com.intellectualsites.http:HTTP4J:1.4")
+    implementation("com.intellectualsites.http:HTTP4J:VERSION)
 }
 ```
 
-Ensure to relocate HTTP4J using the [shadow](https://github.com/johnrengelman/shadow) plugin to your classpath.
+Ensure to relocate HTTP4J using the gradle shadow plugin to your classpath.
 
 ```xml
 <dependency>
     <groupId>com.intellectualsites.http</groupId>
     <artifactId>HTTP4J</artifactId>
-    <version>1.4</version>
+    <version>VERSION</version>
 </dependency>
 ```
 
 ### Code
 
-**JavaDocs:** [https://javadocs.dev/com.intellectualsites.http/HTTP4J/](https://javadocs.dev/com.intellectualsites.http/HTTP4J/)
+**JavaDocs:** [https://javadoc.io/doc/com.intellectualsites.http/HTTP4J](https://javadoc.io/doc/com.intellectualsites.http/HTTP4J)
 
 All requests are done using an instance of `com.intellectualsites.http.HttpClient`:
 

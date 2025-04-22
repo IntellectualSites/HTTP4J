@@ -67,7 +67,7 @@ tasks {
             "implNote:a:Implementation Note:"
         )
         opt.links("https://javadoc.io/doc/org.jetbrains/annotations/" + libs.annotations.get().versionConstraint.toString())
-        opt.links("https://www.javadoc.io/doc/com.google.code.gson/gson/" + libs.gson.get().versionConstraint.toString())
+        opt.links("https://javadoc.io/doc/com.google.code.gson/gson/" + libs.gson.get().versionConstraint.toString())
         opt.noTimestamp()
     }
 
