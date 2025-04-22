@@ -1,13 +1,13 @@
 import com.diffplug.gradle.spotless.SpotlessPlugin
+import com.vanniktech.maven.publish.SonatypeHost
 import java.net.URI
 
 plugins {
     java
-    `maven-publish`
     signing
 
     alias(libs.plugins.spotless)
-    alias(libs.plugins.nexus)
+    alias(libs.plugins.publish)
 
     idea
     eclipse
@@ -40,11 +40,6 @@ tasks.compileJava.configure {
 group = "com.intellectualsites.http"
 version = "1.8-SNAPSHOT"
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 spotless {
     java {
         licenseHeaderFile(rootProject.file("LICENSE"))
@@ -63,7 +58,7 @@ tasks {
     }
 
     javadoc {
-        title = project.name + " " + project.version
+        title = project.name
         val opt = options as StandardJavadocDocletOptions
         opt.addStringOption("Xdoclint:none", "-quiet")
         opt.tags(
@@ -92,62 +87,55 @@ signing {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
+mavenPublishing {
+    coordinates(
+        groupId = "$group",
+        artifactId = project.name,
+        version = "${project.version}",
+    )
 
-            pom {
+    pom {
 
-                name.set(project.name + " " + project.version)
-                description.set("A simple, lightweight and tiny wrapper for Java's HttpURLConnection")
-                url.set("https://github.com/IntellectualSites/HTTP4J/")
+        name.set(project.name + " " + project.version)
+        description.set("A simple, lightweight and tiny wrapper for Java's HttpURLConnection")
+        url.set("https://github.com/IntellectualSites/HTTP4J/")
 
-                licenses {
-                    license {
-                        name.set("MIT")
-                        url.set("https://opensource.org/licenses/MIT")
-                        distribution.set("repo")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("Citymonstret")
-                        name.set("Alexander Söderberg")
-                        organization.set("IntellectualSites")
-                        organizationUrl.set("https://github.com/IntellectualSites/")
-                    }
-                    developer {
-                        id.set("NotMyFault")
-                        name.set("Alexander Brandes")
-                        organization.set("IntellectualSites")
-                        organizationUrl.set("https://github.com/IntellectualSites")
-                        email.set("contact(at)notmyfault.dev")
-                    }
-                }
-
-                scm {
-                    url.set("https://github.com/IntellectualSites/HTTP4J/")
-                    connection.set("scm:git:https://github.com/IntellectualSites/HTTP4J.git")
-                    developerConnection.set("scm:git:git@github.com:IntellectualSites/HTTP4J.git")
-                    tag.set("${project.version}")
-                }
-
-                issueManagement{
-                    system.set("GitHub")
-                    url.set("https://github.com/IntellectualSites/HTTP4J/issues")
-                }
+        licenses {
+            license {
+                name.set("MIT")
+                url.set("https://opensource.org/licenses/MIT")
+                distribution.set("repo")
             }
         }
-    }
-}
 
-nexusPublishing {
-    this.repositories {
-        sonatype {
-            nexusUrl.set(URI.create("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(URI.create("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+        developers {
+            developer {
+                id.set("Citymonstret")
+                name.set("Alexander Söderberg")
+                organization.set("IntellectualSites")
+                organizationUrl.set("https://github.com/IntellectualSites/")
+            }
+            developer {
+                id.set("NotMyFault")
+                name.set("Alexander Brandes")
+                organization.set("IntellectualSites")
+                organizationUrl.set("https://github.com/IntellectualSites")
+                email.set("contact(at)notmyfault.dev")
+            }
         }
+
+        scm {
+            url.set("https://github.com/IntellectualSites/HTTP4J/")
+            connection.set("scm:git:https://github.com/IntellectualSites/HTTP4J.git")
+            developerConnection.set("scm:git:git@github.com:IntellectualSites/HTTP4J.git")
+            tag.set("${project.version}")
+        }
+
+        issueManagement{
+            system.set("GitHub")
+            url.set("https://github.com/IntellectualSites/HTTP4J/issues")
+        }
+
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     }
 }

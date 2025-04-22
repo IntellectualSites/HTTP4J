@@ -7,7 +7,7 @@ logback = "1.5.18"
 gson = "2.12.1"
 
 spotless = "7.0.3"
-nexus  = "2.0.0"
+publish = "0.31.0"
 
 [libraries]
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
@@ -20,4 +20,4 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-nexus = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus" }
+publish = { id = "com.vanniktech.maven.publish", version.ref = "publish" }
