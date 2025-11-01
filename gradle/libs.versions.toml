@@ -6,7 +6,7 @@ mockserver = "5.15.0"
 logback = "1.5.19"
 gson = "2.13.2"
 
-spotless = "7.0.4"
+spotless = "7.2.1"
 publish = "0.32.0"
 
 [libraries]
