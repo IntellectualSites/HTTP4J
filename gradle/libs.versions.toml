@@ -2,7 +2,7 @@
 annotations = "26.1.0"
 jupiter = "5.14.4"
 junit-platform = "1.14.4"
-mockserver = "6.1.0"
+mockserver = "7.6.0"
 logback = "1.6.3"
 gson = "2.14.0"
 
